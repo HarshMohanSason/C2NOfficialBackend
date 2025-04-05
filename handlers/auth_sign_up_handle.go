@@ -10,16 +10,6 @@ import (
 
 func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *http.Request){
 
-	response.Header().Set("Access-Control-Allow-Origin", "*")
-	response.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	response.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-	//Pre flight request 
-	if receivedRequest.Method == http.MethodOptions{
-		response.WriteHeader(http.StatusOK)
-		return 
-	}
-
 	if receivedRequest.Method != http.MethodPost{
 		http.Error(response, "Invalid request", http.StatusMethodNotAllowed)
 		return
