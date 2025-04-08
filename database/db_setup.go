@@ -15,30 +15,22 @@ var (
 	once sync.Once
 )
 
-func ConnectToDB() (*sql.DB, error) {
+func ConnectToDB() error {
 	var err error
 	//Make sure the db connect only runs once.
 	once.Do(func() {
+
 		// Load .env file
 		err = godotenv.Load()
-		if err != nil {
-			utils.LogError(err)
-			return
-		}
+		
 		// Get database URL
 		connStr := os.Getenv("DATABASE_URL")
-		if connStr == "" {
-			utils.LogError(err)
-			return
-		}
+
 		// Connect to database
 		db, err = sql.Open("postgres", connStr)
-		if err != nil {
-			utils.LogError(err)
-			return
-		}
 	})
-	return db, err
+	utils.LogError(err)
+	return err
 }
 
 func GetDB() *sql.DB {

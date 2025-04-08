@@ -28,10 +28,9 @@ func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 	//Create a User obejct from the received JSON 
 	err = json.Unmarshal(body, &user)
 	if err != nil {
-		http.Error(response, "Invalid JSON format", http.StatusBadRequest)
+		http.Error(response, "Invalid Format, please try again", http.StatusBadRequest)
 		return
 	}
-
 	//Start processing the user 
 	err = services.ProcessUserSignUp(&user)
 	if err != nil{

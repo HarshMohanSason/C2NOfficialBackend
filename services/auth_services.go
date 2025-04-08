@@ -1,10 +1,37 @@
 package services
 
 import (
-	"c2nofficialsitebackend/database"
-	"c2nofficialsitebackend/models"
 	"c2nofficialsitebackend/utils"
+	"c2nofficialsitebackend/models"
+	"c2nofficialsitebackend/database"
 )
+
+/* --------------- USER SIGN IN ----------------- */
+func ProcessUserSignIn(user *models.User) error{
+
+	//First making sure entered user email is in correct format 
+	err := utils.ValidateUserEmail(user.Email)
+	if err != nil{
+		return err
+	}
+	userRepo := &database.PostgresUserRepository{DB: database.GetDB()}
+	//Find the user
+	var foundUser *models.User
+	foundUser, err = userRepo.SearchUser(user)
+	if err != nil{
+		return err
+	}
+	//Verify the passwords now
+	if foundUser.Password != nil && user.Password != nil{
+	err = utils.VerifyPasswords(*foundUser.Password, *user.Password)
+	}
+	if err != nil{
+		return err
+	}	
+	return nil
+}
+
+/* --------------- USER SIGN UP ----------------- */
 
 func ProcessUserSignUp(user *models.User) error {
 	if err := validateAndSanitizeUser(user); err != nil {
@@ -35,7 +62,6 @@ func validateAndSanitizeUser(user *models.User) error {
 
 // StartSavingUserToDB saves user to database
 func saveUserToRepository(user *models.User) error {
-
 	db := database.GetDB() //Get the db instance
 	userRepo := &database.PostgresUserRepository{DB: db} //Instance to create userRepo 
 	err := createNewUser(userRepo, user) //Create the user 

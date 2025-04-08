@@ -12,16 +12,17 @@ import (
 func main() {
 
 	//Initialize the connection to Postgres
-	db, err := database.ConnectToDB()
+	err := database.ConnectToDB()
 	if err != nil{
 		log.Println("Database connection error: ",err);
 	}
-	defer db.Close() //Closing when main is finished
+	defer database.GetDB().Close() //Closing when main is finished
 	//Initializing logger to track errors 
 	utils.InitLogger()
 
 	http.Handle("/signup", middleware.CORSManager(http.HandlerFunc(handlers.ReceiveSignUpFormUserInfo)))
-
+	http.Handle("/signin", middleware.CORSManager(http.HandlerFunc(handlers.ReceiveSignInFormUserInfo)))
+	
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("Failed to start server:", err)
