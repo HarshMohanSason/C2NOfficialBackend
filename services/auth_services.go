@@ -7,28 +7,27 @@ import (
 )
 
 /* --------------- USER SIGN IN ----------------- */
-func ProcessUserSignIn(user *models.User) error{
-
+func ProcessUserSignIn(user *models.User) (*models.User, error){
 	//First making sure entered user email is in correct format 
 	err := utils.ValidateUserEmail(user.Email)
 	if err != nil{
-		return err
+		return nil, err
 	}
 	userRepo := &database.PostgresUserRepository{DB: database.GetDB()}
 	//Find the user
 	var foundUser *models.User
 	foundUser, err = userRepo.SearchUser(user)
 	if err != nil{
-		return err
+		return nil, err
 	}
 	//Verify the passwords now
 	if foundUser.Password != nil && user.Password != nil{
 	err = utils.VerifyPasswords(*foundUser.Password, *user.Password)
 	}
 	if err != nil{
-		return err
+		return nil, err
 	}	
-	return nil
+	return foundUser, nil
 }
 
 /* --------------- USER SIGN UP ----------------- */

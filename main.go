@@ -19,10 +19,10 @@ func main() {
 	defer database.GetDB().Close() //Closing when main is finished
 	//Initializing logger to track errors 
 	utils.InitLogger()
-
+	
 	http.Handle("/signup", middleware.CORSManager(http.HandlerFunc(handlers.ReceiveSignUpFormUserInfo)))
 	http.Handle("/signin", middleware.CORSManager(http.HandlerFunc(handlers.ReceiveSignInFormUserInfo)))
-	
+	http.Handle("/returnuser", middleware.CORSManager(middleware.VerifyJWT(http.HandlerFunc(handlers.ReturnUserInfo))))
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("Failed to start server:", err)

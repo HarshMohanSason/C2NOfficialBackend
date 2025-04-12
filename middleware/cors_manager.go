@@ -4,19 +4,22 @@ import(
 	"os"
 	"net/http"
 )
+/*
+CORSManager conditionally adds CORS headers to the response.
 
-func CORSManager(handlerFunc http.Handler) http.Handler {
-	/*The ENV variable in the .env has a value setup to detect
-	whether headers are required or not. This is because on the 
-	vps when this server is deployed, nginx is handling the cors 
-	not the go. This will return multiple headers on the 
-	production when a request is made
-	*/
+In production, when using a reverse proxy like NGINX (which already sets CORS headers),
+we avoid setting them in the Go server to prevent duplicate headers.
+
+Controlled via HEADERS env variable (set to "YES" to enable CORS headers from Go).
+*/
+func CORSManager(next http.Handler) http.Handler {
+
 	return http.HandlerFunc(func(response http.ResponseWriter, receivedRequest *http.Request){	
 		if os.Getenv("HEADERS") == "YES"{
-			response.Header().Set("Access-Control-Allow-Origin", "*")
-			response.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-			response.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			response.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+			response.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			response.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			response.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 		//Pre flight request 
 		if receivedRequest.Method == http.MethodOptions{
@@ -24,6 +27,6 @@ func CORSManager(handlerFunc http.Handler) http.Handler {
 			return
 		}
 
-		handlerFunc.ServeHTTP(response, receivedRequest)
+		next.ServeHTTP(response, receivedRequest)
 	})
 }

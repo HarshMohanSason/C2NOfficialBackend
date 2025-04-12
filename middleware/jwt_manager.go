@@ -1,43 +1,48 @@
 
 package middleware
-/*
+
 import (
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 	"net/http"
+	"os"
+	"c2nofficialsitebackend/utils"
 )
 
-func VerifyJWT(handlerFunc http.Handler) http.Handler{
-	return http.HandlerFunc(func(response http.ResponseWriter, receivedRequest http.Request){
+/* Not handling errors explicitly in the entire JWT file. Only
+logging the errors
+*/ 
 
-		cookie, err := receivedRequest.Cookie("token")
-		if err != nil{
-			http.Error(response, "Unauthorized request, please try again", http.StatusUnauthorized)
+func VerifyJWT(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("auth-token")
+		if err != nil {
+			utils.LogError(err)
+			http.Error(w, "Unauthorized: No auth-token", http.StatusUnauthorized)
 			return
 		}
-		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error){
-			return os.Getenv("JWT_SECRET"), nil
+		_, err = jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
-		if err != nil{
-			http.Error(response, err.Error(), http.StatusUnauthorized)
+		if err != nil {
+			utils.LogError(err)
+			http.Error(w, "Unauthorized: Invalid token", http.StatusUnauthorized)
 			return
 		}
-		handlerFunc.ServeHTTP(receivedRequest, response)
+		next.ServeHTTP(w, r)
 	})
 }
 
-func GenerateJWT(username String) (string, error){
-
+func GenerateJWT(username string) (string, error){
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, 
     	jwt.MapClaims{ 
     	"username": username, 
     	"exp": time.Now().Add(time.Hour * 24).Unix(), 
     })
-    tokenString, err := token.SignedString(os.Getenv("JWT_SECRET")) //Sign the token with the secret key
+    tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET"))) //Sign the token with the secret key
     if err != nil {
+    	utils.LogError(err)
     	return "", err
     }
     return tokenString, nil
 }
-*/
-
