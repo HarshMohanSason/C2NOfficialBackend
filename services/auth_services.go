@@ -4,6 +4,7 @@ import (
 	"c2nofficialsitebackend/utils"
 	"c2nofficialsitebackend/models"
 	"c2nofficialsitebackend/database"
+	"c2nofficialsitebackend/config"
 )
 
 /* --------------- USER SIGN IN ----------------- */
@@ -20,6 +21,7 @@ func ProcessUserSignIn(user *models.User) (*models.User, error){
 	if err != nil{
 		return nil, err
 	}
+	
 	//Verify the passwords now
 	if foundUser.Password != nil && user.Password != nil{
 	err = utils.VerifyPasswords(*foundUser.Password, *user.Password)
@@ -34,11 +36,11 @@ func ProcessUserSignIn(user *models.User) (*models.User, error){
 
 func ProcessUserSignUp(user *models.User) error {
 	if err := validateAndSanitizeUser(user); err != nil {
-		utils.LogError(err)
+		config.LogError(err)
 		return err
 	}
 	if err := saveUserToRepository(user); err != nil {
-		utils.LogError(err)
+		config.LogError(err)
 		return err
 	}
 	return nil

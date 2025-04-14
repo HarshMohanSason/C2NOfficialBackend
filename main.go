@@ -5,26 +5,34 @@ import (
 	"log"
 	"net/http"
 	"c2nofficialsitebackend/handlers"
-	"c2nofficialsitebackend/utils"
 	"c2nofficialsitebackend/middleware"
+	"c2nofficialsitebackend/config"
 )
 
 func main() {
 
-	//Initialize the connection to Postgres
+	//Load the env file
+	config.LoadEnv()
+
+	//Initialize logger 
+	config.InitLogger()
+
+	//Connect to postgres
 	err := database.ConnectToDB()
 	if err != nil{
 		log.Println("Database connection error: ",err);
 	}
-	defer database.GetDB().Close() //Closing when main is finished
-	//Initializing logger to track errors 
-	utils.InitLogger()
+	//Close the connection when main is finished
+	defer database.GetDB().Close() 
 	
+	//Routes
 	http.Handle("/signup", middleware.CORSManager(http.HandlerFunc(handlers.ReceiveSignUpFormUserInfo)))
 	http.Handle("/signin", middleware.CORSManager(http.HandlerFunc(handlers.ReceiveSignInFormUserInfo)))
 	http.Handle("/returnuser", middleware.CORSManager(middleware.VerifyJWT(http.HandlerFunc(handlers.ReturnUserInfo))))
+	
+	//Listening at port 8080
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
-		log.Fatal("Failed to start server:", err)
+
 	}
 }

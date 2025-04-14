@@ -7,7 +7,6 @@ import (
 	"c2nofficialsitebackend/services"
 	"encoding/json"
 )
-
 func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *http.Request){
 
 	if receivedRequest.Method != http.MethodPost{

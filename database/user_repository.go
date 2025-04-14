@@ -3,7 +3,7 @@ package database
 import(
 	"c2nofficialsitebackend/models"
 	"database/sql"
-	"c2nofficialsitebackend/utils"
+	"c2nofficialsitebackend/config"
 	"errors"
 	"github.com/lib/pq" 
 )
@@ -33,11 +33,11 @@ func (p *PostgresUserRepository) CreateUser(user *models.User) error{
 			case "not_null_violation":
 				return errors.New("All fields are required.")
 			default:
-				utils.LogError(pqErr)
+				config.LogError(pqErr)
 				return errors.New("Something went wrong. Please try again.")
 			}
 		}
-		utils.LogError(err)
+		config.LogError(err)
 		return errors.New("An error occured creating the account. Please try again later")
 	}
 	return nil
@@ -58,18 +58,18 @@ func (p *PostgresUserRepository) SearchUser(user* models.User) (*models.User, er
     					&foundUser.AuthType,
     					&foundUser.CreatedAt,
     					&foundUser.UpdatedAt,)
-
 	if err != nil{
 		if errors.Is(err, sql.ErrNoRows) {
 			// No user found with the given email
-			return nil, errors.New("No user exists with this email")
+			config.LogError(err)
+			return nil, errors.New("No user found with this email.")
 		}
 		if pqErr, ok := err.(*pq.Error); ok{
 			switch pqErr.Code.Name() {
 			case "not_null_violation": 
 				return nil, errors.New("All fields are required.")
 			default:
-				utils.LogError(pqErr)
+				config.LogError(pqErr)
 				return nil, errors.New("Something went wrong. Please try again.")
 			}
 		}

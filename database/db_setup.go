@@ -2,10 +2,8 @@ package database
 
 import (
 	"database/sql"
-	"os"
 	_ "github.com/lib/pq" 
-	"github.com/joho/godotenv"
-	"c2nofficialsitebackend/utils"
+	"c2nofficialsitebackend/config"
 	"sync"
 )
 
@@ -19,17 +17,10 @@ func ConnectToDB() error {
 	var err error
 	//Make sure the db connect only runs once.
 	once.Do(func() {
-
-		// Load .env file
-		err = godotenv.Load()
-		
-		// Get database URL
-		connStr := os.Getenv("DATABASE_URL")
-
 		// Connect to database
-		db, err = sql.Open("postgres", connStr)
+		db, err = sql.Open("postgres", config.Env.DB_URL)
 	})
-	utils.LogError(err)
+	config.LogError(err)
 	return err
 }
 

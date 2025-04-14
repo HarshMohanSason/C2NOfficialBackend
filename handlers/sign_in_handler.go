@@ -7,6 +7,7 @@ import(
 	"c2nofficialsitebackend/models"
 	"c2nofficialsitebackend/services"
 	"c2nofficialsitebackend/middleware"
+	"c2nofficialsitebackend/utils"
 )
 
 func ReceiveSignInFormUserInfo(response http.ResponseWriter, receivedRequest *http.Request){
@@ -39,36 +40,11 @@ func ReceiveSignInFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 	}
 	//Do not need the error since a jwt not being generated should be ignored
 	tokenJWT, _ := middleware.GenerateJWT(returnedUser.Name) 
-		
-	//Set cookie for JWT 
-	http.SetCookie(response, &http.Cookie{
-	  Name:     "auth-token",
-	  Value:    tokenJWT,
-	  HttpOnly: true,
-	  Secure:   false,  
-	  Path:     "/",
-	  SameSite: http.SameSiteLaxMode,
-	})
 
-	//Set cookie for email
-	http.SetCookie(response, &http.Cookie{
-	  Name:     "email",
-	  Value:    returnedUser.Email,
-	  HttpOnly: true,
-	  Secure:   false,  
-	  Path:     "/",
-	  SameSite: http.SameSiteLaxMode,
-	})
-
-	//Set cookie for auth type
-	http.SetCookie(response, &http.Cookie{
-	  Name:     "auth-type",
-	  Value:    returnedUser.AuthType,
-	  HttpOnly: true,
-	  Secure:   false,  
-	  Path:     "/",
-	  SameSite: http.SameSiteLaxMode,
-	})
-	response.WriteHeader(http.StatusOK)
-	response.Write([]byte("User signed in successfully"))
+	//Set the Auth Cookies 
+	utils.SetAuthCookies(response, 
+		&utils.Cookie{Name: "auth-token", Value: tokenJWT, Path: "/"},
+		&utils.Cookie{Name: "email", Value: user.Email, Path: "/"},
+		&utils.Cookie{Name: "auth-type", Value: user.AuthType, Path: "/"},
+	)
 }
