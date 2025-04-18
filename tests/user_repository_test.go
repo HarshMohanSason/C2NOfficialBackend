@@ -47,7 +47,7 @@ func TestInsertUser(t *testing.T){
 	}
 }
 
-
+//Modify accoringly to test the functions 
 func getUserTestCases() []struct {
 	name      string
 	input     *models.User

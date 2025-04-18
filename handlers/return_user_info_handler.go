@@ -20,7 +20,6 @@ func ReturnUserInfo(response http.ResponseWriter, receivedRequest *http.Request)
 	emailCookie, _ := receivedRequest.Cookie("email")
 	authTypeCookie, _ := receivedRequest.Cookie("auth-type")
 	
-	//Creating basic info for the user to search for the user
 	user := models.User{
 		Name: authTokenCookie.Value, 
 		Email: emailCookie.Value, 
@@ -32,7 +31,7 @@ func ReturnUserInfo(response http.ResponseWriter, receivedRequest *http.Request)
 		http.Error(response, "Could not find the user, please login again to continue", http.StatusUnauthorized)
 		return 
 	}
-	//Sending the response back now
+	
 	response.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewEncoder(response).Encode(foundUser); err != nil {

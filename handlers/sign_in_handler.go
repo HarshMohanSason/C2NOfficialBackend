@@ -38,10 +38,9 @@ func ReceiveSignInFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 		http.Error(response,err.Error(),http.StatusConflict)
 		return
 	}
-	//Do not need the error since a jwt not being generated should be ignored
+
 	tokenJWT, _ := middleware.GenerateJWT(returnedUser.Name) 
 
-	//Set the Auth Cookies 
 	utils.SetAuthCookies(response, 
 		&utils.Cookie{Name: "auth-token", Value: tokenJWT, Path: "/"},
 		&utils.Cookie{Name: "email", Value: user.Email, Path: "/"},

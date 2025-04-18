@@ -5,6 +5,8 @@ import (
 	"io"
 	"c2nofficialsitebackend/models"
 	"c2nofficialsitebackend/services"
+	"c2nofficialsitebackend/middleware"
+	"c2nofficialsitebackend/utils"
 	"encoding/json"
 )
 
@@ -21,20 +23,28 @@ func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 		http.Error(response, "Error reading request body", http.StatusBadRequest)
 		return
 	}
-	defer receivedRequest.Body.Close() //Close the body once the function finishes
+	defer receivedRequest.Body.Close() 
 
 	var user models.User
 
-	//Create a User obejct from the received JSON 
 	err = json.Unmarshal(body, &user)
 	if err != nil {
 		http.Error(response, "Invalid Format, please try again", http.StatusBadRequest)
 		return
 	}
-	//Start processing the user 
+
 	err = services.ProcessUserSignUp(&user)
 	if err != nil{
 		http.Error(response, err.Error(), http.StatusConflict)
 		return
 	}
+
+	//Do not need the error since a jwt not being generated should be ignored
+	tokenJWT, _ := middleware.GenerateJWT(user.Name) 
+
+	utils.SetAuthCookies(response, 
+		&utils.Cookie{Name: "auth-token", Value: tokenJWT, Path: "/"},
+		&utils.Cookie{Name: "email", Value: user.Email, Path: "/"},
+		&utils.Cookie{Name: "auth-type", Value: user.AuthType, Path: "/"},
+	)
 }
