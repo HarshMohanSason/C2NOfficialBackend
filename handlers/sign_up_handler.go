@@ -1,18 +1,18 @@
 package handlers
 
 import (
-	"net/http"
-	"io"
+	"c2nofficialsitebackend/middleware"
 	"c2nofficialsitebackend/models"
 	"c2nofficialsitebackend/services"
-	"c2nofficialsitebackend/middleware"
 	"c2nofficialsitebackend/utils"
 	"encoding/json"
+	"io"
+	"net/http"
 )
 
-func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *http.Request){
+func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *http.Request) {
 
-	if receivedRequest.Method != http.MethodPost{
+	if receivedRequest.Method != http.MethodPost {
 		http.Error(response, "Invalid request", http.StatusMethodNotAllowed)
 		return
 	}
@@ -23,7 +23,7 @@ func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 		http.Error(response, "Error reading request body", http.StatusBadRequest)
 		return
 	}
-	defer receivedRequest.Body.Close() 
+	defer receivedRequest.Body.Close()
 
 	var user models.User
 
@@ -34,15 +34,15 @@ func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 	}
 
 	err = services.ProcessUserSignUp(&user)
-	if err != nil{
+	if err != nil {
 		http.Error(response, err.Error(), http.StatusConflict)
 		return
 	}
 
 	//Do not need the error since a jwt not being generated should be ignored
-	tokenJWT, _ := middleware.GenerateJWT(user.Name) 
+	tokenJWT, _ := middleware.GenerateJWT(user.Name)
 
-	utils.SetAuthCookies(response, 
+	utils.SetAuthCookies(response,
 		&utils.Cookie{Name: "auth-token", Value: tokenJWT, Path: "/"},
 		&utils.Cookie{Name: "email", Value: user.Email, Path: "/"},
 		&utils.Cookie{Name: "auth-type", Value: user.AuthType, Path: "/"},

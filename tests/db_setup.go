@@ -2,10 +2,9 @@ package tests
 
 import (
 	"database/sql"
-	"testing"
 )
 
-func SetupTestDB(t *testing.T) (*sql.DB, error) {
+func SetupTestDB() (*sql.DB, error) {
 	connStr := "host=localhost port=5432 user=harshmohansason dbname=c2nofficialsitetestdb sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

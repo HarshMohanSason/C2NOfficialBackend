@@ -1,32 +1,32 @@
-package config 
+package config
 
 import (
 	"github.com/joho/godotenv"
-	"sync"
-	"os"
 	"log"
+	"os"
+	"sync"
 )
 
-type EnvConfig struct{
-	ENV_TYPE string
-	DB_URL string
-	JWT_SECRET string
-	ZOHO_MAIL_PASSWORD string 
+type EnvConfig struct {
+	EnvType          string
+	DbUrl            string
+	JwtSecret        string
+	ZohoMailPassword string
 }
 
 var Env *EnvConfig
 var once sync.Once
 
-func LoadEnv(){
+func LoadEnv() {
 	once.Do(func() {
 		//Getting the env type (is set externally when runnning the main.go file )
 		envType := os.Getenv("ENV_TYPE")
 
-		var envFile string 
-		switch envType{
-		case "PROD": 
+		var envFile string
+		switch envType {
+		case "PROD":
 			envFile = ".env.production"
-		case "DEV": 
+		case "DEV":
 			envFile = ".env.development"
 		default:
 			log.Fatalf("Unknown or missing ENV_TYPE: %s", envType)
@@ -35,10 +35,10 @@ func LoadEnv(){
 		_ = godotenv.Load(envFile)
 
 		Env = &EnvConfig{
-			ENV_TYPE:        os.Getenv("ENV_TYPE"),
-			DB_URL:          os.Getenv("DATABASE_URL"),
-			JWT_SECRET:      os.Getenv("JWT_SECRET"),
-			ZOHO_MAIL_PASSWORD: os.Getenv("ZOHO_MAIL_PASSWORD"),
+			EnvType:          os.Getenv("ENV_TYPE"),
+			DbUrl:            os.Getenv("DATABASE_URL"),
+			JwtSecret:        os.Getenv("JWT_SECRET"),
+			ZohoMailPassword: os.Getenv("ZOHO_MAIL_PASSWORD"),
 		}
 	})
 }

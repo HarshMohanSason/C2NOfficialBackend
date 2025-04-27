@@ -1,19 +1,20 @@
 package tests
 
 import (
-	"testing"
-	"c2nofficialsitebackend/models"
 	"c2nofficialsitebackend/database"
-	"c2nofficialsitebackend/tests"
+	"c2nofficialsitebackend/models"
+	"testing"
 )
 
 func TestSearchUser(t *testing.T) {
-	
-	db, err := tests.SetupTestDB(t)
+
+	db, err := SetupTestDB()
 	if err != nil {
 		t.Fatalf("Error setting up the db: %v", err)
 	}
 	repo := &database.PostgresUserRepository{DB: db}
+
+	defer db.Close()
 
 	for _, tc := range getUserTestCases() {
 		t.Run(tc.name, func(t *testing.T) {
@@ -29,17 +30,17 @@ func TestSearchUser(t *testing.T) {
 	}
 }
 
-func TestInsertUser(t *testing.T){
+func TestInsertUser(t *testing.T) {
 
-	db, err := tests.SetupTestDB(t)
-	if err != nil{
+	db, err := SetupTestDB()
+	if err != nil {
 		t.Fatalf("Error occurred setting up the db: %v", err)
 	}
 	repo := &database.PostgresUserRepository{DB: db}
-	for _, tc := range getUserTestCases(){
-		t.Run(tc.name, func(t *testing.T){
+	for _, tc := range getUserTestCases() {
+		t.Run(tc.name, func(t *testing.T) {
 			err := repo.CreateUser(tc.input)
-			if err != nil{
+			if err != nil {
 				t.Fatalf("Error occured, please try again: %v", err)
 			}
 			t.Logf("Data Insert successfully")
@@ -47,7 +48,7 @@ func TestInsertUser(t *testing.T){
 	}
 }
 
-//Modify accoringly to test the functions 
+// Modify accordingly to test the functions
 func getUserTestCases() []struct {
 	name      string
 	input     *models.User
@@ -68,7 +69,7 @@ func getUserTestCases() []struct {
 			expectErr: false,
 		},
 	}
-} 
+}
 
 func strPtr(s string) *string {
 	return &s

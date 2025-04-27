@@ -1,15 +1,14 @@
-
 package utils
 
 import (
+	"c2nofficialsitebackend/config"
 	"fmt"
 	"net/smtp"
-	"c2nofficialsitebackend/config"
 )
 
 func SendMail() {
 	from := "contactus@c2nshop.com"
-	password := config.Env.ZOHO_MAIL_PASSWORD // app password if 2FA is enabled
+	password := config.Env.ZohoMailPassword // app password if 2FA is enabled
 
 	to := []string{"harshsason2000@gmail.com"}
 	smtpHost := "smtp.zoho.in"

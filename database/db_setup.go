@@ -1,15 +1,15 @@
 package database
 
 import (
-	"database/sql"
-	_ "github.com/lib/pq" 
 	"c2nofficialsitebackend/config"
+	"database/sql"
+	_ "github.com/lib/pq"
 	"sync"
 )
 
-//Global instance for the database 
+// Global instance for the database
 var (
-	db *sql.DB
+	db   *sql.DB
 	once sync.Once
 )
 
@@ -18,12 +18,12 @@ func ConnectToDB() error {
 	//Make sure the db connect only runs once.
 	once.Do(func() {
 		// Connect to database
-		db, err = sql.Open("postgres", config.Env.DB_URL)
+		db, err = sql.Open("postgres", config.Env.DbUrl)
 	})
 	config.LogError(err)
 	return err
 }
 
 func GetDB() *sql.DB {
-    return db
+	return db
 }
