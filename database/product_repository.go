@@ -21,6 +21,7 @@ type PostgresProductRepository struct {
 }
 
 func (repo *PostgresProductRepository) AddProduct(product *models.Product) error {
+
 	query := `
 		INSERT INTO products (
 			name, category_id, long_description, short_description, thumbnail_image,
@@ -32,9 +33,10 @@ func (repo *PostgresProductRepository) AddProduct(product *models.Product) error
 			$6, $7, $8, $9, $10, $11, $12,
 			$13, $14, $15, $16
 		)`
+
 	_, err := repo.DB.Exec(query,
 		product.Name,
-		product.Category.ID,
+		product.CategoryID,
 		product.LongDescription,
 		product.ShortDescription,
 		product.ThumbnailImage,

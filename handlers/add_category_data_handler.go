@@ -38,16 +38,22 @@ func AddCategoryData(response http.ResponseWriter, receivedRequest *http.Request
 		http.Error(response, err.Error(), http.StatusBadRequest)
 		return
 	}
-	_, customizationPDFHeader, err := receivedRequest.FormFile("customization_pdf")
 
-	if err != nil {
-		http.Error(response, "Unable to customization pdf, bad request", http.StatusBadRequest)
-		return
-	}
-	customizationPDF, err := utils.UploadSingleFile(customizationPDFHeader, categoryName, "../uploads/categories")
-	if err != nil {
-		http.Error(response, err.Error(), http.StatusBadRequest)
-		return
+	var customizationPDF *string
+	_, customizationPDFHeader, err := receivedRequest.FormFile("customization_pdf")
+	//customizationPDF can be nil. So if it is storing nil value in the category table as is.
+	if customizationPDFHeader == nil {
+		customizationPDF = nil
+	} else { //If not nil, proceed to upload the pdf file.
+		if err != nil {
+			http.Error(response, "Unable to customization pdf, bad request", http.StatusBadRequest)
+			return
+		}
+		*customizationPDF, err = utils.UploadSingleFile(customizationPDFHeader, categoryName, "../uploads/categories")
+		if err != nil {
+			http.Error(response, err.Error(), http.StatusBadRequest)
+			return
+		}
 	}
 
 	category := &models.Category{

@@ -7,7 +7,7 @@ import (
 type Product struct {
 	ID               uint16    `json:"id"`
 	Name             string    `json:"name"`
-	Category         Category  `json:"category"`
+	CategoryID       uint      `json:"category_id"`
 	LongDescription  string    `json:"long_description"`
 	ShortDescription string    `json:"short_description"`
 	ThumbnailImage   string    `json:"thumbnail_image"`

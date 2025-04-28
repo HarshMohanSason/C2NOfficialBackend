@@ -28,6 +28,17 @@ func AddProductData(response http.ResponseWriter, receivedRequest *http.Request)
 		http.Error(response, "Product name is required", http.StatusBadRequest)
 		return
 	}
+	categoryIDStr := receivedRequest.FormValue("category_id")
+
+	if categoryIDStr == "" {
+		http.Error(response, "A Category is required", http.StatusBadRequest)
+		return
+	}
+	categoryID, err := strconv.ParseUint(categoryIDStr, 10, 32)
+	if err != nil {
+		http.Error(response, fmt.Sprintf("Invalid category ID: %v", err), http.StatusBadRequest)
+		return
+	}
 
 	priceStr := receivedRequest.FormValue("price")
 	priceUint64, err := strconv.ParseUint(priceStr, 10, 32)
@@ -102,6 +113,7 @@ func AddProductData(response http.ResponseWriter, receivedRequest *http.Request)
 	// Create the product
 	product := &models.Product{
 		Name:             productName,
+		CategoryID:       uint(categoryID),
 		LongDescription:  receivedRequest.FormValue("long_description"),
 		ShortDescription: receivedRequest.FormValue("short_description"),
 		ThumbnailImage:   thumbnailImage,
@@ -117,12 +129,11 @@ func AddProductData(response http.ResponseWriter, receivedRequest *http.Request)
 		Width:            width,
 		Height:           height,
 	}
-
+	fmt.Printf("%+v\n", product)
 	err = services.ProcessAddingProductData(product)
 	if err != nil {
 		http.Error(response, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("%+v\n", product)
 
 }

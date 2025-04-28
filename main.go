@@ -41,6 +41,7 @@ func main() {
 	http.Handle("/returnuser", middleware.CORSManager(middleware.VerifyJWT(http.HandlerFunc(handlers.ReturnUserInfo))))
 	http.Handle("/addproduct", middleware.CORSManager(middleware.VerifyJWT(http.HandlerFunc(handlers.AddProductData))))
 	http.Handle("/addcategory", middleware.CORSManager(middleware.VerifyJWT(http.HandlerFunc(handlers.AddCategoryData))))
+	http.Handle("/returnallcategorysummary", middleware.CORSManager(middleware.VerifyJWT(http.HandlerFunc(handlers.ReturnAllCategoriesHandler))))
 	//Listening at port 8080
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
