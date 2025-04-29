@@ -16,7 +16,7 @@ func AddProductData(response http.ResponseWriter, receivedRequest *http.Request)
 	}
 
 	// Parse the form
-	err := receivedRequest.ParseMultipartForm(10 << 20) // 10MB limit for the images in total.
+	err := receivedRequest.ParseMultipartForm(50 << 20) // 10MB limit for the images in total.
 	if err != nil {
 		http.Error(response, "Unable to parse form data", http.StatusBadRequest)
 		return
