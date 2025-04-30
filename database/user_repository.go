@@ -19,11 +19,7 @@ type PostgresUserRepository struct {
 
 func (p *PostgresUserRepository) CreateUser(user *models.User) error {
 
-	setRoleError := SetUserRole(p.DB, user)
-	if setRoleError != nil {
-		return setRoleError
-	}
-	query := `INSERT INTO users (name, email, password, auth_type) VALUES ($1, $2, $3, $4)`
+	query := `INSERT INTO public.users (name, email, password, auth_type) VALUES ($1, $2, $3, $4)`
 	_, err := p.DB.Exec(query, user.Name, user.Email, user.Password, user.AuthType)
 
 	if err != nil {
@@ -48,10 +44,6 @@ func (p *PostgresUserRepository) CreateUser(user *models.User) error {
 
 func (p *PostgresUserRepository) SearchUser(user *models.User) (*models.User, error) {
 
-	setRoleError := SetUserRole(p.DB, user)
-	if setRoleError != nil {
-		return nil, setRoleError
-	}
 	//Searching the user where the auth type and the email matches the passed user
 	query := `SELECT id, name, email, password, auth_type, created_at, updated_at FROM users WHERE email = $1 AND auth_type = $2`
 
@@ -83,5 +75,6 @@ func (p *PostgresUserRepository) SearchUser(user *models.User) (*models.User, er
 		}
 		return nil, err
 	}
+
 	return &foundUser, nil
 }

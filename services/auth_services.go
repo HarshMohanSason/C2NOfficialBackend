@@ -18,7 +18,7 @@ func ProcessUserSignIn(user *models.User) (*models.User, error) {
 	userRepo := &database.PostgresUserRepository{DB: database.GetDB()}
 	//Find the user with that email
 	var foundUser *models.User
-	foundUser, err = userRepo.SearchUser(user)
+	foundUser, _ = userRepo.SearchUser(user)
 
 	//Proceed to signup if none is found with Google login
 	if foundUser == nil && user.AuthType == "google" {
@@ -39,7 +39,11 @@ func ProcessUserSignIn(user *models.User) (*models.User, error) {
 			return nil, err
 		}
 	}
-
+	//Once the user is found, set the current auth roles for that user.
+	setRoleError := database.SetUserRole(database.GetDB(), foundUser)
+	if setRoleError != nil {
+		return nil, setRoleError
+	}
 	return foundUser, nil
 }
 
@@ -51,6 +55,11 @@ func ProcessUserSignUp(user *models.User) error {
 	if err := saveUserToRepository(user); err != nil {
 		config.LogError(err)
 		return err
+	}
+	//Once the user is signed up, set the current auth roles for that user.
+	setRoleError := database.SetUserRole(database.GetDB(), user)
+	if setRoleError != nil {
+		return nil
 	}
 	return nil
 }

@@ -7,3 +7,6 @@
 
 #Ignore all bash scripts
 *.sh
+
+#Only pushing the prod setup
+database/dbadmin/db_admin_test_setup.sql
