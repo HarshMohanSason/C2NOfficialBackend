@@ -1,0 +1,2 @@
+DROP ROLE IF EXISTS c2n_admin;
+DROP ROLE IF EXISTS c2n_user;

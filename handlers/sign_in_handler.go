@@ -31,6 +31,9 @@ func ReceiveSignInFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 		http.Error(response, "Invalid Format, please try again", http.StatusBadRequest)
 		return
 	}
+	if user.AuthType == "google" {
+
+	}
 	var returnedUser *models.User
 	returnedUser, err = services.ProcessUserSignIn(&user)
 
@@ -38,7 +41,6 @@ func ReceiveSignInFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 		http.Error(response, err.Error(), http.StatusConflict)
 		return
 	}
-
 	tokenJWT, _ := middleware.GenerateJWT(returnedUser.Name)
 
 	utils.SetAuthCookies(response,

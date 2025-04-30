@@ -1,38 +1,47 @@
 package services
 
 import (
-	"c2nofficialsitebackend/utils"
-	"c2nofficialsitebackend/models"
-	"c2nofficialsitebackend/database"
 	"c2nofficialsitebackend/config"
+	"c2nofficialsitebackend/database"
+	"c2nofficialsitebackend/models"
+	"c2nofficialsitebackend/utils"
+	"errors"
 )
 
-/* --------------- USER SIGN IN ----------------- */
-func ProcessUserSignIn(user *models.User) (*models.User, error){
-	//First making sure entered user email is in correct format 
+func ProcessUserSignIn(user *models.User) (*models.User, error) {
+
+	//making sure entered user email is in correct format
 	err := utils.ValidateUserEmail(user.Email)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	userRepo := &database.PostgresUserRepository{DB: database.GetDB()}
-	//Find the user
+	//Find the user with that email
 	var foundUser *models.User
 	foundUser, err = userRepo.SearchUser(user)
-	if err != nil{
-		return nil, err
+
+	//Proceed to signup if none is found with Google login
+	if foundUser == nil && user.AuthType == "google" {
+		err = ProcessUserSignUp(user)
+		if err != nil {
+			return nil, err
+		}
+		foundUser = user //Found user is the new user
 	}
-	
-	//Verify the passwords now
-	if foundUser.Password != nil && user.Password != nil{
-	err = utils.VerifyPasswords(*foundUser.Password, *user.Password)
+
+	if foundUser == nil {
+		return nil, errors.New("no user not found")
 	}
-	if err != nil{
-		return nil, err
-	}	
+
+	//Verify the passwords if the user signed in via email
+	if user.AuthType == "email" && user.Password != nil {
+		if err = utils.VerifyPasswords(*foundUser.Password, *user.Password); err != nil {
+			return nil, err
+		}
+	}
+
 	return foundUser, nil
 }
-
-/* --------------- USER SIGN UP ----------------- */
 
 func ProcessUserSignUp(user *models.User) error {
 	if err := validateAndSanitizeUser(user); err != nil {
@@ -51,10 +60,10 @@ func validateAndSanitizeUser(user *models.User) error {
 	if err := utils.ValidateUserInfo(user); err != nil {
 		return err
 	}
-	if user.Password != nil{
+	if user.Password != nil {
 		hashedPassword, err := utils.GenerateHashedPassword(*user.Password)
 		if err != nil {
-		    return err
+			return err
 		}
 		user.Password = &hashedPassword
 	}
@@ -63,10 +72,10 @@ func validateAndSanitizeUser(user *models.User) error {
 
 // StartSavingUserToDB saves user to database
 func saveUserToRepository(user *models.User) error {
-	db := database.GetDB() //Get the db instance
-	userRepo := &database.PostgresUserRepository{DB: db} //Instance to create userRepo 
-	err := createNewUser(userRepo, user) //Create the user 
-	if err != nil{
+	db := database.GetDB()                               //Get the db instance
+	userRepo := &database.PostgresUserRepository{DB: db} //Instance to create userRepo
+	err := createNewUser(userRepo, user)                 //Create the user
+	if err != nil {
 		return err
 	}
 	return nil
