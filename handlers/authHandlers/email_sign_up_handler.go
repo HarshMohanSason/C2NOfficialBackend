@@ -1,4 +1,4 @@
-package handlers
+package authHandlers
 
 import (
 	"c2nofficialsitebackend/middleware"
@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *http.Request) {
+func EmailSignUpHandler(response http.ResponseWriter, receivedRequest *http.Request) {
 
 	if receivedRequest.Method != http.MethodPost {
 		http.Error(response, "Invalid request", http.StatusMethodNotAllowed)
@@ -33,7 +33,7 @@ func ReceiveSignUpFormUserInfo(response http.ResponseWriter, receivedRequest *ht
 		return
 	}
 
-	err = services.ProcessUserSignUp(&user)
+	err = services.SignUpWithEmail(&user)
 	if err != nil {
 		http.Error(response, err.Error(), http.StatusConflict)
 		return

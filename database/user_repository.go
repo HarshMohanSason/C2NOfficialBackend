@@ -23,19 +23,13 @@ func (p *PostgresUserRepository) CreateUser(user *models.User) error {
 	_, err := p.DB.Exec(query, user.Name, user.Email, user.Password, user.AuthType)
 
 	if err != nil {
-		//Checking for postgres given errors
+		//psql errors
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) {
-			switch pqErr.Code.Name() {
-			case "unique_violation":
-				return errors.New("email already exists, please choose another email")
-			case "not_null_violation":
-				return errors.New("all fields are required")
-			default:
-				config.LogError(pqErr)
-				return errors.New("something went wrong. Please try again")
-			}
+			config.LogError(pqErr)
+			return ReturnPsqlError(pqErr)
 		}
+		//default error
 		config.LogError(err)
 		return errors.New("an error occurred creating the account. Please try again later")
 	}
@@ -45,7 +39,7 @@ func (p *PostgresUserRepository) CreateUser(user *models.User) error {
 func (p *PostgresUserRepository) SearchUser(user *models.User) (*models.User, error) {
 
 	//Searching the user where the auth type and the email matches the passed user
-	query := `SELECT id, name, email, password, auth_type, created_at, updated_at FROM users WHERE email = $1 AND auth_type = $2`
+	query := `SELECT id, name, email, password, auth_type, is_admin, created_at, updated_at FROM users WHERE email = $1 AND auth_type = $2`
 
 	var foundUser models.User
 	//Adding values to the foundUser a user if a user is found
@@ -55,25 +49,25 @@ func (p *PostgresUserRepository) SearchUser(user *models.User) (*models.User, er
 		&foundUser.Email,
 		&foundUser.Password,
 		&foundUser.AuthType,
+		&foundUser.IsAdmin,
 		&foundUser.CreatedAt,
 		&foundUser.UpdatedAt)
+
 	if err != nil {
+		// No user found with the given email
 		if errors.Is(err, sql.ErrNoRows) {
-			// No user found with the given email
 			config.LogError(err)
 			return nil, errors.New("no user found with this email")
 		}
+		//psql errors
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) {
-			switch pqErr.Code.Name() {
-			case "not_null_violation":
-				return nil, errors.New("all fields are required")
-			default:
-				config.LogError(pqErr)
-				return nil, errors.New("something went wrong. Please try again")
-			}
+			config.LogError(pqErr)
+			return nil, ReturnPsqlError(pqErr)
 		}
-		return nil, err
+		//default error
+		config.LogError(pqErr)
+		return nil, errors.New("an error occurred querying the database,try again later")
 	}
 
 	return &foundUser, nil

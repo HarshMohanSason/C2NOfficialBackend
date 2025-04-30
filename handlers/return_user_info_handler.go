@@ -11,23 +11,34 @@ func ReturnUserInfo(response http.ResponseWriter, receivedRequest *http.Request)
 
 	if receivedRequest.Method != http.MethodGet {
 		http.Error(response, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
 	userRepo := &database.PostgresUserRepository{DB: database.GetDB()}
 
-	//Not handling any errors here since it is being already verified with the jwt verify middleware
-	authTokenCookie, _ := receivedRequest.Cookie("auth-token")
-	emailCookie, _ := receivedRequest.Cookie("email")
-	authTypeCookie, _ := receivedRequest.Cookie("auth-type")
+	authTokenCookie, err := receivedRequest.Cookie("auth-token")
+	if err != nil {
+		return // No cookie found, just return
+	}
+
+	emailCookie, err := receivedRequest.Cookie("email")
+	if err != nil {
+		return
+	}
+
+	authTypeCookie, err := receivedRequest.Cookie("auth-type")
+	if err != nil {
+		return
+	}
 
 	user := models.User{
 		Name:     authTokenCookie.Value,
 		Email:    emailCookie.Value,
 		AuthType: authTypeCookie.Value,
 	}
-	foundUser, err := userRepo.SearchUser(&user)
-	if err != nil {
-		http.Error(response, "Could not find the user, please login again to continue", http.StatusUnauthorized)
+
+	foundUser, _ := userRepo.SearchUser(&user)
+	if foundUser == nil {
 		return
 	}
 

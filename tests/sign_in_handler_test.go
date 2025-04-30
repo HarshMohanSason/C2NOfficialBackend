@@ -2,7 +2,7 @@ package tests
 
 import (
 	"bytes"
-	"c2nofficialsitebackend/handlers"
+	"c2nofficialsitebackend/handlers/authHandlers"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +24,7 @@ func TestSignInHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handlers.ReceiveSignInFormUserInfo(rr, req)
+	authHandlers.EmailSignInHandler(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Errorf("Expected status 200 OK, got %d", rr.Code)
