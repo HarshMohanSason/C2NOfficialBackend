@@ -4,3 +4,9 @@
 
 # Ignore all log files
 *.log
+
+#Ignore all bash scripts
+*.sh
+
+#Ignore only the sql initial setup
+sql_setup.sql
